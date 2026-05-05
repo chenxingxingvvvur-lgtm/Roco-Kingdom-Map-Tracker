@@ -1,4 +1,7 @@
-"""Hotkey listener management for island window."""
+"""Hotkey listener management for island window.
+
+macOS 和 Windows 统一使用 pynput 实现全局快捷键。
+"""
 
 from __future__ import annotations
 
@@ -9,7 +12,6 @@ import config
 from ..services.hotkey_config import (
     key_vk,
     modifier_names,
-    native_modifier_flags,
     normalize_action_hotkeys,
     normalize_hotkey_payload,
 )
@@ -37,8 +39,6 @@ class HotkeyController:
         self.window._hotkeys_suspended = bool(suspended)
 
     def start_listener(self) -> None:
-        if self.window._is_windows and self.start_native_listener():
-            return
         if keyboard is None:
             return
 
@@ -77,57 +77,6 @@ class HotkeyController:
         self.window._last_hotkey_at = now
         self.window._hotkey_action_requested.emit(str(action))
 
-    def start_native_listener(self) -> bool:
-        try:
-            import ctypes
-            from ctypes import wintypes
-            import threading
-        except Exception:
-            return False
-
-        user32 = ctypes.windll.user32
-        kernel32 = ctypes.windll.kernel32
-        wm_hotkey = 0x0312
-        mod_norepeat = 0x4000
-        registrations = [
-            (self.window._NATIVE_HOTKEY_ID_BASE + index, action, native_modifier_flags(payload), key_vk(payload))
-            for index, (action, payload) in enumerate(self.configured_hotkeys())
-        ]
-        registrations = [
-            (hotkey_id, action, modifiers, vk)
-            for hotkey_id, action, modifiers, vk in registrations
-            if vk
-        ]
-        if not registrations:
-            return False
-
-        def hotkey_loop():
-            self.window._hotkey_thread_id = kernel32.GetCurrentThreadId()
-            registered_ids: dict[int, str] = {}
-            for hotkey_id, action, modifiers, vk in registrations:
-                if user32.RegisterHotKey(None, hotkey_id, modifiers | mod_norepeat, vk):
-                    registered_ids[int(hotkey_id)] = action
-            if not registered_ids:
-                self.window._hotkey_thread_id = None
-                return
-
-            message = wintypes.MSG()
-            try:
-                while user32.GetMessageW(ctypes.byref(message), None, 0, 0) != 0:
-                    if message.message == wm_hotkey:
-                        action = registered_ids.get(int(message.wParam))
-                        if action is not None:
-                            self.request_action(action)
-            finally:
-                for hotkey_id in registered_ids:
-                    user32.UnregisterHotKey(None, hotkey_id)
-                self.window._hotkey_thread_id = None
-
-        self.window._hotkey_thread = threading.Thread(target=hotkey_loop, daemon=True)
-        self.window._hotkey_thread.start()
-        time.sleep(0.05)
-        return self.window._hotkey_thread_id is not None
-
     @staticmethod
     def _pynput_vk(key) -> int | None:
         value = getattr(key, "vk", None)
@@ -163,15 +112,3 @@ class HotkeyController:
         if self.window._hotkey_listener is not None:
             self.window._hotkey_listener.stop()
             self.window._hotkey_listener = None
-
-        if self.window._hotkey_thread_id is not None:
-            try:
-                import ctypes
-
-                ctypes.windll.user32.PostThreadMessageW(self.window._hotkey_thread_id, 0x0012, 0, 0)
-            except Exception:
-                pass
-
-        if self.window._hotkey_thread is not None:
-            self.window._hotkey_thread.join(timeout=0.5)
-            self.window._hotkey_thread = None

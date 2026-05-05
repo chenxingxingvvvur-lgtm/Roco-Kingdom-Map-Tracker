@@ -333,22 +333,6 @@ class WindowStateBridgeMixin:
         self.hotkey_state.listener = value
 
     @property
-    def _hotkey_thread(self):
-        return self.hotkey_state.thread
-
-    @_hotkey_thread.setter
-    def _hotkey_thread(self, value) -> None:
-        self.hotkey_state.thread = value
-
-    @property
-    def _hotkey_thread_id(self):
-        return self.hotkey_state.thread_id
-
-    @_hotkey_thread_id.setter
-    def _hotkey_thread_id(self, value) -> None:
-        self.hotkey_state.thread_id = value
-
-    @property
     def _last_hotkey_at(self) -> float:
         return self.hotkey_state.last_hotkey_at
 

@@ -1984,7 +1984,10 @@ QCheckBox::indicator:checked:hover {{
                 try:
                     subprocess.Popen(["explorer", "/select,", os.path.normpath(path)])
                 except OSError:
-                    os.startfile(os.path.dirname(path))
+                    from PySide6.QtCore import QUrl
+                    from PySide6.QtGui import QDesktopServices
+
+                    QDesktopServices.openUrl(QUrl.fromLocalFile(os.path.dirname(path)))
             else:
                 from PySide6.QtCore import QUrl
                 from PySide6.QtGui import QDesktopServices
@@ -2004,7 +2007,11 @@ QCheckBox::indicator:checked:hover {{
             if not os.path.isdir(path):
                 raise FileNotFoundError(path)
             if sys.platform.startswith("win"):
-                os.startfile(path)
+                from PySide6.QtCore import QUrl
+                from PySide6.QtGui import QDesktopServices
+
+                if not QDesktopServices.openUrl(QUrl.fromLocalFile(path)):
+                    raise OSError(path)
             else:
                 from PySide6.QtCore import QUrl
                 from PySide6.QtGui import QDesktopServices

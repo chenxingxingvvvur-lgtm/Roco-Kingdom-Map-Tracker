@@ -74,7 +74,6 @@ class IslandWindow(WindowStateBridgeMixin, QWidget):
     _startup_update_install_finished = Signal(object)
     _startup_update_progress_changed = Signal(str)
 
-    _NATIVE_HOTKEY_ID_BASE = 100
     _HOTKEY_DEBOUNCE_SEC = 0.35
     _AUTO_RECENTER_MOVE_THRESHOLD = 3
     _DISPLAY_LOCK_CONFIRM_FRAMES = 2

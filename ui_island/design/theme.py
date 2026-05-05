@@ -186,7 +186,7 @@ QWidget#IslandRoot:hover {{
 }}
 QLabel {{
     color: {FG};
-    font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", "Microsoft YaHei", sans-serif;
 }}
 QLabel#CoordLabel {{
     font-size: 13px;

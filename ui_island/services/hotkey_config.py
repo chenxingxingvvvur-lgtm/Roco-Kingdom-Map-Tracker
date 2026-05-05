@@ -40,13 +40,6 @@ _MODIFIER_BITS = {
     "Meta": Qt.MetaModifier.value,
 }
 _MODIFIER_ORDER = ("Ctrl", "Alt", "Shift", "Meta")
-_WINDOWS_MODIFIER_FLAGS = {
-    "Alt": 0x0001,
-    "Ctrl": 0x0002,
-    "Shift": 0x0004,
-    "Meta": 0x0008,
-}
-
 _SPECIAL_QT_TO_VK = {
     Qt.Key_QuoteLeft.value: 0xC0,
     Qt.Key_AsciiTilde.value: 0xC0,
@@ -240,14 +233,6 @@ def vk_from_qt_key(key_value: int) -> int | None:
     if Qt.Key_F1.value <= key_value <= Qt.Key_F24.value:
         return 0x70 + (key_value - Qt.Key_F1.value)
     return _SPECIAL_QT_TO_VK.get(key_value)
-
-
-def native_modifier_flags(raw: object) -> int:
-    payload = normalize_hotkey_payload(raw)
-    flags = 0
-    for modifier in payload["modifiers"]:
-        flags |= _WINDOWS_MODIFIER_FLAGS.get(str(modifier), 0)
-    return flags
 
 
 def modifier_names(raw: object) -> set[str]:

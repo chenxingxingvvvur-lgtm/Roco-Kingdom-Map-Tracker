@@ -26,6 +26,8 @@ class UpdaterError(RuntimeError):
 
 
 def _local_app_data_dir() -> Path:
+    if sys.platform == "darwin":
+        return Path.home() / "Library/Application Support/GMT-N"
     base = os.environ.get("LOCALAPPDATA")
     if base:
         return Path(base) / "GMT-N"

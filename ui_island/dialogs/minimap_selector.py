@@ -63,7 +63,7 @@ class _SelectorOverlay(QWidget):
         painter.drawLine(self._size // 2, 0, self._size // 2, self._size)
 
         painter.setPen(QColor("white"))
-        painter.setFont(QFont("Microsoft YaHei", 9, QFont.Bold))
+        painter.setFont(QFont("PingFang SC", 9, QFont.Bold))
         painter.drawText(QRect(0, 6, self._size, 18), Qt.AlignCenter, "左键拖动 | 滚轮缩放")
         painter.setPen(QColor("#ffd60a"))
         painter.drawText(QRect(0, self._size - 24, self._size, 18), Qt.AlignCenter, "按 回车/双击 确认截图")
